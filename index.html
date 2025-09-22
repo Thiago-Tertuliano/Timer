@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporizador ⏱️</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="timer-card">
+            <h1 class="title">Temporizador ⏱️</h1>
+            
+            <div class="time-display">
+                <div class="time-inputs">
+                    <div class="input-group">
+                        <label for="hours">Horas</label>
+                        <input type="number" id="hours" min="0" max="23" value="0" placeholder="00">
+                    </div>
+                    <div class="input-group">
+                        <label for="minutes">Minutos</label>
+                        <input type="number" id="minutes" min="0" max="59" value="0" placeholder="00">
+                    </div>
+                    <div class="input-group">
+                        <label for="seconds">Segundos</label>
+                        <input type="number" id="seconds" min="0" max="59" value="0" placeholder="00">
+                    </div>
+                </div>
+                
+                <div class="time-display-main">
+                    <span id="display-time">00:00:00</span>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button id="start-btn" class="btn btn-start">▶️ Iniciar</button>
+                <button id="pause-btn" class="btn btn-pause" disabled>⏸️ Pausar</button>
+                <button id="reset-btn" class="btn btn-reset">🔄 Resetar</button>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <span id="progress-text">0%</span>
+            </div>
+            
+            <div class="status">
+                <span id="status-text">Pronto para iniciar</span>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
