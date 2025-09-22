@@ -11,19 +11,26 @@
         <div class="timer-card">
             <h1 class="title">Temporizador ⏱️</h1>
             
+            <div class="presets">
+                <button class="preset-btn" data-minutes="25">🍅 Pomodoro</button>
+                <button class="preset-btn" data-minutes="5">☕ Pausa</button>
+                <button class="preset-btn" data-minutes="15">🎯 Foco</button>
+                <button class="preset-btn" data-minutes="60">📚 Estudo</button>
+            </div>
+            
             <div class="time-display">
                 <div class="time-inputs">
                     <div class="input-group">
                         <label for="hours">Horas</label>
-                        <input type="number" id="hours" min="0" max="23" value="0" placeholder="00">
+                        <input type="number" id="hours" min="0" max="23" value="0" placeholder="00" aria-label="Horas">
                     </div>
                     <div class="input-group">
                         <label for="minutes">Minutos</label>
-                        <input type="number" id="minutes" min="0" max="59" value="0" placeholder="00">
+                        <input type="number" id="minutes" min="0" max="59" value="0" placeholder="00" aria-label="Minutos">
                     </div>
                     <div class="input-group">
                         <label for="seconds">Segundos</label>
-                        <input type="number" id="seconds" min="0" max="59" value="0" placeholder="00">
+                        <input type="number" id="seconds" min="0" max="59" value="0" placeholder="00" aria-label="Segundos">
                     </div>
                 </div>
                 
@@ -33,9 +40,9 @@
             </div>
             
             <div class="controls">
-                <button id="start-btn" class="btn btn-start">▶️ Iniciar</button>
-                <button id="pause-btn" class="btn btn-pause" disabled>⏸️ Pausar</button>
-                <button id="reset-btn" class="btn btn-reset">🔄 Resetar</button>
+                <button id="start-btn" class="btn btn-start" aria-label="Iniciar timer">▶️ Iniciar</button>
+                <button id="pause-btn" class="btn btn-pause" disabled aria-label="Pausar timer">⏸️ Pausar</button>
+                <button id="reset-btn" class="btn btn-reset" aria-label="Resetar timer">🔄 Resetar</button>
             </div>
             
             <div class="progress-container">

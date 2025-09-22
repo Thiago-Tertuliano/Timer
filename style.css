@@ -31,9 +31,42 @@ body {
 .title {
     text-align: center;
     color: #333;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     font-size: 2.5rem;
     font-weight: 300;
+}
+
+.presets {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.preset-btn {
+    padding: 8px 16px;
+    border: 2px solid #e1e5e9;
+    border-radius: 20px;
+    background: #f8f9fa;
+    color: #666;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.preset-btn:hover {
+    border-color: #667eea;
+    background: #667eea;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.preset-btn:active {
+    transform: translateY(0);
 }
 
 .time-display {
@@ -196,8 +229,41 @@ body {
     100% { transform: scale(1); }
 }
 
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInFromTop {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
 .timer-running #display-time {
     animation: pulse 2s infinite;
+}
+
+.timer-card {
+    animation: fadeIn 0.6s ease-out;
+}
+
+.preset-btn {
+    animation: slideInFromTop 0.4s ease-out;
+}
+
+.preset-btn:nth-child(1) { animation-delay: 0.1s; }
+.preset-btn:nth-child(2) { animation-delay: 0.2s; }
+.preset-btn:nth-child(3) { animation-delay: 0.3s; }
+.preset-btn:nth-child(4) { animation-delay: 0.4s; }
+
+.btn:active {
+    animation: bounce 0.3s ease;
 }
 
 /* Responsividade */
@@ -212,6 +278,16 @@ body {
     
     #display-time {
         font-size: 3rem;
+    }
+    
+    .presets {
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .preset-btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
     }
     
     .time-inputs {

@@ -23,12 +23,18 @@ class Timer {
         this.progressText = document.getElementById('progress-text');
         this.statusText = document.getElementById('status-text');
         this.timerCard = document.querySelector('.timer-card');
+        this.presetBtns = document.querySelectorAll('.preset-btn');
     }
     
     bindEvents() {
         this.startBtn.addEventListener('click', () => this.start());
         this.pauseBtn.addEventListener('click', () => this.pause());
         this.resetBtn.addEventListener('click', () => this.reset());
+        
+        // Presets rápidos
+        this.presetBtns.forEach(btn => {
+            btn.addEventListener('click', () => this.setPreset(btn));
+        });
         
         // Atualizar tempo quando os inputs mudarem
         [this.hoursInput, this.minutesInput, this.secondsInput].forEach(input => {
@@ -39,6 +45,36 @@ class Timer {
         [this.hoursInput, this.minutesInput, this.secondsInput].forEach(input => {
             input.addEventListener('blur', () => this.validateInput(input));
         });
+        
+        // Melhorar UX com Enter nos inputs
+        [this.hoursInput, this.minutesInput, this.secondsInput].forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.start();
+                }
+            });
+        });
+    }
+    
+    setPreset(btn) {
+        if (this.isRunning || this.isPaused) {
+            this.showNotification('Pause o timer antes de alterar o tempo', 'info');
+            return;
+        }
+        
+        const minutes = parseInt(btn.dataset.minutes);
+        this.hoursInput.value = 0;
+        this.minutesInput.value = minutes;
+        this.secondsInput.value = 0;
+        
+        this.updateTimeFromInputs();
+        this.showNotification(`Preset definido: ${minutes} minutos`, 'success');
+        
+        // Efeito visual no botão
+        btn.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            btn.style.transform = '';
+        }, 150);
     }
     
     validateInput(input) {
@@ -193,6 +229,14 @@ class Timer {
     }
     
     showNotification(message, type = 'info') {
+        // Remover notificações existentes
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notification => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        });
+        
         // Criar elemento de notificação
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
@@ -211,6 +255,7 @@ class Timer {
             animation: slideIn 0.3s ease;
             max-width: 300px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            cursor: pointer;
         `;
         
         // Cores baseadas no tipo
@@ -239,38 +284,57 @@ class Timer {
             document.head.appendChild(style);
         }
         
-        document.body.appendChild(notification);
-        
-        // Remover após 3 segundos
-        setTimeout(() => {
+        // Permitir fechar clicando
+        notification.addEventListener('click', () => {
             notification.style.animation = 'slideOut 0.3s ease';
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.parentNode.removeChild(notification);
                 }
             }, 300);
-        }, 3000);
+        });
+        
+        document.body.appendChild(notification);
+        
+        // Remover após 4 segundos (aumentado para dar tempo de ler)
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }
+        }, 4000);
     }
     
     playNotificationSound() {
-        // Criar um som de notificação simples usando Web Audio API
+        // Criar um som de notificação mais agradável usando Web Audio API
         try {
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
             
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+            // Som de conclusão mais musical
+            const frequencies = [523.25, 659.25, 783.99]; // C5, E5, G5
+            const duration = 0.2;
             
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-            oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
-            
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.5);
+            frequencies.forEach((freq, index) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + (index * 0.1));
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime + (index * 0.1));
+                gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + (index * 0.1) + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + (index * 0.1) + duration);
+                
+                oscillator.start(audioContext.currentTime + (index * 0.1));
+                oscillator.stop(audioContext.currentTime + (index * 0.1) + duration);
+            });
         } catch (error) {
             // Fallback silencioso se Web Audio API não estiver disponível
             console.log('Som de notificação não disponível');
@@ -285,6 +349,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Adicionar suporte para teclas de atalho
 document.addEventListener('keydown', (event) => {
+    // Evitar atalhos quando estiver digitando nos inputs
+    if (event.target.tagName === 'INPUT') {
+        return;
+    }
+    
     // Espaço para iniciar/pausar
     if (event.code === 'Space') {
         event.preventDefault();
@@ -304,6 +373,16 @@ document.addEventListener('keydown', (event) => {
         const resetBtn = document.getElementById('reset-btn');
         if (!resetBtn.disabled) {
             resetBtn.click();
+        }
+    }
+    
+    // Números 1-4 para presets rápidos
+    if (event.code >= 'Digit1' && event.code <= 'Digit4') {
+        event.preventDefault();
+        const presetIndex = parseInt(event.code.replace('Digit', '')) - 1;
+        const presetBtns = document.querySelectorAll('.preset-btn');
+        if (presetBtns[presetIndex]) {
+            presetBtns[presetIndex].click();
         }
     }
 });
