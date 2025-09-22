@@ -223,9 +223,15 @@ class Timer {
             const progress = ((this.totalTime - this.remainingTime) / this.totalTime) * 100;
             this.progressFill.style.width = `${progress}%`;
             this.progressText.textContent = `${Math.round(progress)}%`;
+            
+            // Atualizar timer circular
+            const circumference = 2 * Math.PI * 45; // raio = 45
+            const offset = circumference - (progress / 100) * circumference;
+            this.timerCircle.style.strokeDashoffset = offset;
         } else {
             this.progressFill.style.width = '0%';
             this.progressText.textContent = '0%';
+            this.timerCircle.style.strokeDashoffset = '283';
         }
     }
     
@@ -361,6 +367,139 @@ class Timer {
             console.log('Som de notificação não disponível');
         }
     }
+    
+    toggleTheme() {
+        this.isDarkMode = !this.isDarkMode;
+        document.body.classList.toggle('dark-mode', this.isDarkMode);
+        this.themeToggle.textContent = this.isDarkMode ? '☀️' : '🌙';
+        this.saveSettings();
+    }
+    
+    toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().then(() => {
+                this.fullscreenBtn.textContent = '⛶';
+            }).catch(err => {
+                console.log('Erro ao entrar em tela cheia:', err);
+            });
+        } else {
+            document.exitFullscreen().then(() => {
+                this.fullscreenBtn.textContent = '⛶';
+            }).catch(err => {
+                console.log('Erro ao sair da tela cheia:', err);
+            });
+        }
+    }
+    
+    toggleSound() {
+        this.soundEnabled = !this.soundEnabled;
+        this.soundToggle.classList.toggle('muted', !this.soundEnabled);
+        this.soundToggle.textContent = this.soundEnabled ? '🔊' : '🔇';
+        this.saveSettings();
+    }
+    
+    saveToHistory() {
+        const now = new Date();
+        const timeString = this.formatTime(this.totalTime);
+        const dateString = now.toLocaleString('pt-BR');
+        
+        this.history.unshift({
+            time: timeString,
+            date: dateString,
+            timestamp: now.getTime()
+        });
+        
+        // Manter apenas os últimos 10 timers
+        this.history = this.history.slice(0, 10);
+        
+        localStorage.setItem('timerHistory', JSON.stringify(this.history));
+        this.updateHistoryDisplay();
+    }
+    
+    formatTime(seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        
+        if (hours > 0) {
+            return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        } else {
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+    }
+    
+    updateHistoryDisplay() {
+        if (this.history.length === 0) {
+            this.historySection.style.display = 'none';
+            return;
+        }
+        
+        this.historySection.style.display = 'block';
+        this.historyList.innerHTML = '';
+        
+        this.history.forEach(item => {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <span class="history-time">${item.time}</span>
+                <span class="history-date">${item.date}</span>
+            `;
+            
+            // Permitir reutilizar timer do histórico
+            historyItem.addEventListener('click', () => {
+                this.loadFromHistory(item.time);
+            });
+            
+            this.historyList.appendChild(historyItem);
+        });
+    }
+    
+    loadFromHistory(timeString) {
+        if (this.isRunning || this.isPaused) {
+            this.showNotification('Pause o timer antes de alterar o tempo', 'info');
+            return;
+        }
+        
+        const parts = timeString.split(':');
+        if (parts.length === 2) {
+            // MM:SS
+            this.hoursInput.value = 0;
+            this.minutesInput.value = parseInt(parts[0]);
+            this.secondsInput.value = parseInt(parts[1]);
+        } else if (parts.length === 3) {
+            // HH:MM:SS
+            this.hoursInput.value = parseInt(parts[0]);
+            this.minutesInput.value = parseInt(parts[1]);
+            this.secondsInput.value = parseInt(parts[2]);
+        }
+        
+        this.updateTimeFromInputs();
+        this.showNotification(`Timer carregado: ${timeString}`, 'success');
+    }
+    
+    loadSettings() {
+        const settings = JSON.parse(localStorage.getItem('timerSettings') || '{}');
+        this.soundEnabled = settings.soundEnabled !== false;
+        this.isDarkMode = settings.isDarkMode || false;
+        
+        if (this.isDarkMode) {
+            document.body.classList.add('dark-mode');
+            this.themeToggle.textContent = '☀️';
+        }
+        
+        if (!this.soundEnabled) {
+            this.soundToggle.classList.add('muted');
+            this.soundToggle.textContent = '🔇';
+        }
+    }
+    
+    saveSettings() {
+        const settings = {
+            soundEnabled: this.soundEnabled,
+            isDarkMode: this.isDarkMode
+        };
+        localStorage.setItem('timerSettings', JSON.stringify(settings));
+    }
 }
 
 // Inicializar o timer quando a página carregar
@@ -404,6 +543,33 @@ document.addEventListener('keydown', (event) => {
         const presetBtns = document.querySelectorAll('.preset-btn');
         if (presetBtns[presetIndex]) {
             presetBtns[presetIndex].click();
+        }
+    }
+    
+    // T para alternar tema
+    if (event.code === 'KeyT') {
+        event.preventDefault();
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.click();
+        }
+    }
+    
+    // F para tela cheia
+    if (event.code === 'KeyF') {
+        event.preventDefault();
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        if (fullscreenBtn) {
+            fullscreenBtn.click();
+        }
+    }
+    
+    // S para alternar som
+    if (event.code === 'KeyS') {
+        event.preventDefault();
+        const soundToggle = document.getElementById('sound-toggle');
+        if (soundToggle) {
+            soundToggle.click();
         }
     }
 });
