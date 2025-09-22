@@ -5,10 +5,15 @@ class Timer {
         this.isRunning = false;
         this.isPaused = false;
         this.intervalId = null;
+        this.soundEnabled = true;
+        this.isDarkMode = false;
+        this.history = JSON.parse(localStorage.getItem('timerHistory') || '[]');
         
         this.initializeElements();
         this.bindEvents();
         this.updateDisplay();
+        this.loadSettings();
+        this.updateHistoryDisplay();
     }
     
     initializeElements() {
@@ -24,6 +29,12 @@ class Timer {
         this.statusText = document.getElementById('status-text');
         this.timerCard = document.querySelector('.timer-card');
         this.presetBtns = document.querySelectorAll('.preset-btn');
+        this.themeToggle = document.getElementById('theme-toggle');
+        this.fullscreenBtn = document.getElementById('fullscreen-btn');
+        this.soundToggle = document.getElementById('sound-toggle');
+        this.timerCircle = document.getElementById('timer-circle');
+        this.historySection = document.getElementById('history-section');
+        this.historyList = document.getElementById('history-list');
     }
     
     bindEvents() {
@@ -54,6 +65,11 @@ class Timer {
                 }
             });
         });
+        
+        // Controles do header
+        this.themeToggle.addEventListener('click', () => this.toggleTheme());
+        this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+        this.soundToggle.addEventListener('click', () => this.toggleSound());
     }
     
     setPreset(btn) {
@@ -184,9 +200,14 @@ class Timer {
         this.updateStatus('Timer finalizado!');
         this.timerCard.classList.remove('timer-running');
         
+        // Salvar no histórico
+        this.saveToHistory();
+        
         // Efeito visual de conclusão
         this.showNotification('Timer finalizado! ⏰', 'success');
-        this.playNotificationSound();
+        if (this.soundEnabled) {
+            this.playNotificationSound();
+        }
     }
     
     updateDisplay() {
