@@ -9,7 +9,14 @@
 <body>
     <div class="container">
         <div class="timer-card">
-            <h1 class="title">Temporizador ⏱️</h1>
+            <div class="header">
+                <h1 class="title">Temporizador ⏱️</h1>
+                <div class="header-controls">
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Alternar tema">🌙</button>
+                    <button id="fullscreen-btn" class="fullscreen-btn" aria-label="Tela cheia">⛶</button>
+                    <button id="sound-toggle" class="sound-toggle" aria-label="Alternar som">🔊</button>
+                </div>
+            </div>
             
             <div class="presets">
                 <button class="preset-btn" data-minutes="25">🍅 Pomodoro</button>
@@ -35,7 +42,15 @@
                 </div>
                 
                 <div class="time-display-main">
-                    <span id="display-time">00:00:00</span>
+                    <div class="circular-timer">
+                        <svg class="timer-svg" viewBox="0 0 100 100">
+                            <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
+                            <circle class="timer-progress" cx="50" cy="50" r="45" id="timer-circle"></circle>
+                        </svg>
+                        <div class="time-text">
+                            <span id="display-time">00:00:00</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -54,6 +69,11 @@
             
             <div class="status">
                 <span id="status-text">Pronto para iniciar</span>
+            </div>
+            
+            <div class="history-section" id="history-section" style="display: none;">
+                <h3>Histórico Recente</h3>
+                <div id="history-list" class="history-list"></div>
             </div>
         </div>
     </div>
